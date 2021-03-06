@@ -116,7 +116,7 @@ export class Game {
     for (const i of [-1, 0, 1]) {
       for (const j of [-1, 0, 1]) {
         if (!(i === 0 && j === 0)) {
-          count += this.isAlive(x + 1, y + 1);
+          count += this.isAlive(x + i, y + j);
         }
       }
     }

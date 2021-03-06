@@ -7,22 +7,13 @@ export class Game {
   private readonly tileSize: number;
   private readonly tilesX: number;
   private readonly tilesY: number;
+  private readonly cnv: ElementRef<HTMLCanvasElement> | undefined;
+  private ctx: CanvasRenderingContext2D | null;
 
   public width = window.innerWidth;
   private height = window.innerHeight;
 
-  // Injects a reference to the canvas
-  @ViewChild('canvas', {static: true}) cnv: ElementRef<HTMLCanvasElement> | undefined;
-  private ctx: CanvasRenderingContext2D | null = null;
-
-  // Declares DOM event listener on resizing the window to adapt width and height
-  // tslint:disable-next-line:typedef
-  @HostListener('window:resize', ['$event']) onResize(event: any) {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-  }
-
-  constructor(tileSize: number) {
+  constructor(tileSize: number, cnv: ElementRef<HTMLCanvasElement> | undefined, ctx: CanvasRenderingContext2D | null) {
     // Will be used to increased or decreased grid size
     this.tileSize = tileSize;
     this.tilesX = this.width / tileSize;
@@ -31,6 +22,9 @@ export class Game {
     // Set canvas width and height, initialize context
     this.width = window.innerWidth;
     this.height = window.innerHeight;
+
+    this.cnv = cnv;
+    this.ctx = ctx;
 
     this.BOARD = this.prepareBoard();
   }
@@ -123,7 +117,7 @@ export class Game {
     return count;
   }
 
-  /////////////// WIP
+  // Evolution of the board for the next generation
   evolveGeneration(): boolean[][] {
     const currentBoard = this.BOARD;
 
@@ -142,5 +136,42 @@ export class Game {
       }
     }
     return currentBoard;
+  }
+
+  // Clear the board
+  clear(): void {
+    this.ctx?.clearRect(0, 0, this.width, this.height);
+  }
+
+  // Clear the board, then redraw it and the grid
+  drawAll(): void {
+    this.clear();
+    this.drawBoard();
+    this.drawGrid();
+  }
+
+  // Get the next generation and clear last board, redraw new board and grid
+  nextGen(): void {
+    this.BOARD = this.evolveGeneration();
+    this.drawAll();
+  }
+
+  // Loops on the nextGen function every 1000ms
+  nextGenLoop(): void {
+    this.nextGen();
+    setTimeout(this.nextGenLoop, 1000);
+  }
+
+  getWidth(): number{
+    return this.width ? this.width : 800;
+  }
+
+  getHeight(): number{
+    return this.height ? this.height : 500;
+  }
+
+  updateSize(width: number, height: number): void {
+    this.width = width;
+    this.height = height;
   }
 }

@@ -27,9 +27,24 @@ export class Game {
     this.ctx = ctx;
 
     this.BOARD = this.prepareBoard();
+    this.initGame();
+    // setSize
   }
 
   // METHODS
+
+  getWidth(): number{
+    return this.width ? this.width : 800;
+  }
+
+  getHeight(): number{
+    return this.height ? this.height : 500;
+  }
+
+  updateSize(width: number, height: number): void {
+    this.width = width;
+    this.height = height;
+  }
 
   // Initialisation
   initGame(): void  {
@@ -67,8 +82,19 @@ export class Game {
       this.ctx.lineTo(this.width, j * this.tileSize - 0.5);
       this.ctx.stroke();
     }
+  }
 
-    this.BOARD = this.prepareBoard();
+  // Set the initial board to a boolean 2D array, with only dead cells
+  prepareBoard(): boolean[][] {
+    const board = [];
+    for ( let i = 0; i < this.tilesX; i++ ) {
+      const row = [];
+      for ( let j = 0; j < this.tilesY; j++ ) {
+        row.push(false);
+      }
+      board.push(row);
+    }
+    return board;
   }
 
   // Fills the living cells on the board
@@ -81,19 +107,6 @@ export class Game {
         this.ctx?.fillRect(i * this.tileSize, j * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-  }
-
-  // Set the initial board to a boolean 2D array
-  prepareBoard(): boolean[][] {
-    const board = [];
-    for ( let i = 0; i < this.tilesX; i++ ) {
-      const row = [];
-      for ( let j = 0; j < this.tilesY; j++ ) {
-        row.push(false);
-      }
-      board.push(row);
-    }
-    return board;
   }
 
   // Check if a cell is alive, also set to 0 all values outside the bounds
@@ -119,7 +132,7 @@ export class Game {
 
   // Evolution of the board for the next generation
   evolveGeneration(): boolean[][] {
-    const currentBoard = this.BOARD;
+    const currentBoard = this.prepareBoard();
 
     for ( let i = 0; i < this.tilesX; i ++ ) {
       for ( let j = 0; j < this.tilesY; j++) {
@@ -146,8 +159,8 @@ export class Game {
   // Clear the board, then redraw it and the grid
   drawAll(): void {
     this.clear();
-    this.drawBoard();
     this.drawGrid();
+    this.drawBoard();
   }
 
   // Get the next generation and clear last board, redraw new board and grid
@@ -156,22 +169,9 @@ export class Game {
     this.drawAll();
   }
 
-  // Loops on the nextGen function every 1000ms
+  // Loops on the nextGen function every 100ms
   nextGenLoop(): void {
     this.nextGen();
-    setTimeout(this.nextGenLoop, 1000);
-  }
-
-  getWidth(): number{
-    return this.width ? this.width : 800;
-  }
-
-  getHeight(): number{
-    return this.height ? this.height : 500;
-  }
-
-  updateSize(width: number, height: number): void {
-    this.width = width;
-    this.height = height;
+    setTimeout(() => { this.nextGenLoop(); }, 100);
   }
 }

@@ -15,19 +15,32 @@ export class GameComponent implements AfterViewInit {
 
   game: Game | undefined;
 
-  // Declares DOM event listener on resizing the window to adapt width and height
-  // tslint:disable-next-line:typedef
-  @HostListener('window:resize', ['$event']) onResize(event: any) {
-    this.updateSize(window.innerWidth, window.innerHeight);
-  }
-
   // Calling the content after Angular has fully initialized the component's view
   ngAfterViewInit(): void {
+    // Instantiate new game
     this.game = new Game(20, this.cnv, this.ctx);
+    this.updateSize(window.innerWidth, window.innerHeight);
+
+    // Set living cells for tests
+    this.game.BOARD[1][0] = true;
+    this.game.BOARD[2][1] = true;
+    this.game.BOARD[0][2] = true;
+    this.game.BOARD[1][2] = true;
+    this.game.BOARD[2][2] = true;
+
+    // Set game on loop
     this.game.nextGenLoop();
   }
 
+  // Update canvas size
   updateSize(width: number, height: number): void {
     this.game?.updateSize(width, height);
+    if (!this.ctx) {
+      return;
+    }
+    this.ctx.canvas.width = width;
+    console.log(width);
+    this.ctx.canvas.height = height;
+    console.log(height);
   }
 }

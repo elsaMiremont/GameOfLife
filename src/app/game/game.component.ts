@@ -84,12 +84,12 @@ export class GameComponent implements AfterViewInit {
       return BOARD[x][y] ? 1 : 0;
     };
     // Counts living neighbours around a cell
-    const suroundingCells = (x: number, y: number): number => {
+    const surroundingCells = (x: number, y: number): number => {
       let count = 0;
-      for (let i of [-1, 0, 1]) {
-        for (let j of [-1, 0, 1]) {
+      for (const i of [-1, 0, 1]) {
+        for (const j of [-1, 0, 1]) {
           if (!(i === 0 && j === 0)) {
-            count += isAlive(x + 1, y + 1);
+            count += isAlive(x + i, y + j);
           }
         }
       }
@@ -112,12 +112,12 @@ export class GameComponent implements AfterViewInit {
       for ( let i = 0; i < tilesX; i ++ ) {
         for ( let j = 0; j < tilesY; j++) {
           if (isAlive(i, j)) {
-            const count = suroundingCells(i, j);
+            const count = surroundingCells(i, j);
             if (count === 2 || count === 3) {
               board[i][j] = true;
             }
           } else {
-            if ( suroundingCells(i, j) === 3) {
+            if ( surroundingCells(i, j) === 3) {
               board[i][j] = true;
             }
           }
@@ -126,7 +126,30 @@ export class GameComponent implements AfterViewInit {
       return board;
     };
 
-    drawBoard();
-    drawGrid();
+    const clear = () => {
+      this.ctx?.clearRect(0, 0, this.width, this.height);
+    };
+    const drawAll = () => {
+      clear();
+      drawBoard();
+      drawGrid();
+    };
+    const nextGen = () => {
+      drawAll();
+      BOARD = evolveGeneration();
+    };
+
+    const nextGenLoop = () => {
+      nextGen();
+      setTimeout(nextGenLoop, 100);
+    };
+
+    BOARD[1][0] = true;
+    BOARD[2][1] = true;
+    BOARD[0][2] = true;
+    BOARD[1][2] = true;
+    BOARD[2][2] = true;
+
+    nextGenLoop();
   }
 }

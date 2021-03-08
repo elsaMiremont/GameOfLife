@@ -1,22 +1,22 @@
-import {ElementRef, HostListener, ViewChild} from '@angular/core';
+import {ElementRef} from '@angular/core';
 
 export class Game {
-
+  // Attributs declarations
   public BOARD: boolean[][];
-
   private tileSize: number;
   private tilesX: number;
   private tilesY: number;
   private readonly cnv: ElementRef<HTMLCanvasElement> | undefined;
   private ctx: CanvasRenderingContext2D | null;
+  // Set default pause value
   private pause = false;
-
   public width = window.innerWidth;
   private height = window.innerHeight;
 
   constructor(tileSize: number, cnv: ElementRef<HTMLCanvasElement> | undefined, ctx: CanvasRenderingContext2D | null) {
     // Will be used to increased or decreased grid size
     this.tileSize = tileSize;
+    // Set tiles number horizontally and vertically
     this.tilesX = this.width / tileSize;
     this.tilesY = this.height / tileSize;
 
@@ -27,9 +27,9 @@ export class Game {
     this.cnv = cnv;
     this.ctx = ctx;
 
+    // Init board and game
     this.BOARD = this.prepareBoard();
     this.initGame();
-    // setSize
   }
 
   // METHODS
@@ -49,9 +49,9 @@ export class Game {
   updateTileSize(tileSize: number): void {
     this.pause = true;
     setTimeout(() => {
+      // Temporary values of tilesX and tilesY
       const nTilesX = this.width / tileSize;
       const nTilesY = this.height / tileSize;
-
       if (nTilesY > this.tilesY) {
         this.BOARD.forEach(row => {
           row.fill(false, this.tilesY, nTilesY);
@@ -220,6 +220,7 @@ export class Game {
     setTimeout(() => { this.pause ? (() => {})() : this.nextGenLoop(); }, 100);
   }
 
+  // Fills the board randomly
   populate(): void {
     for ( let i = 0; i < this.tilesX; i++ ) {
       for ( let j = 0; j < this.tilesY; j++ ) {
@@ -228,6 +229,7 @@ export class Game {
     }
   }
 
+  // Clears the board
   empty(): void {
     for ( let i = 0; i < this.tilesX; i++ ) {
       for ( let j = 0; j < this.tilesY; j++ ) {

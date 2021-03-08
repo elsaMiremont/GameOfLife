@@ -1,7 +1,27 @@
-<mat-sidenav-container class="example-container row bg-dark border-top">
-  <mat-sidenav mode="side" class="border-end col-md-2 bg-dark" opened>
-  </mat-sidenav>
-  <mat-sidenav-content class="col-md-10 p-0">
-    <app-game></app-game>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<div class="exemple-container" [class.example-is-mobile]="mobileQuery.matches" *ngIf="shouldRun">
+  <mat-toolbar class="example-toolbar bg-dark border-bottom">
+    <button mat-icon-button (click)="snav.toggle()"><mat-icon class="white-icon">menu</mat-icon></button>
+    <h1 class="example-app-name">Game of Life</h1>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="example-sidenav-container"
+                         [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+    <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'"
+                 [fixedInViewport]="mobileQuery.matches" fixedTopGap="56" class="p-3">
+      <mat-nav-list class="d-flex flex-column">
+        <h2 class="text-center">Settings</h2>
+        <mat-slide-toggle class="d-block p-1" [(ngModel)]="showGrid">Display grid</mat-slide-toggle>
+        <button mat-button class="p-1" (click)="empty()"><mat-icon>delete_outline</mat-icon><span class="p-2">Clear</span></button>
+        <button mat-button class="p-1" (click)="populate()"><mat-icon>add_outline</mat-icon><span class="p-2">Populate</span></button>
+        <label>
+          Cell size
+          <input #sizeInput type="number" min="1" max="60" (input)="tileSizeChange()" [(ngModel)]="tileSizeTmp"/>
+        </label>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="bg-dark">
+      <app-game #game [showGrid]="showGrid" [tileSize]="tileSize"></app-game>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

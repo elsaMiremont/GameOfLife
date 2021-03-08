@@ -4,11 +4,12 @@ export class Game {
 
   public BOARD: boolean[][];
 
-  private readonly tileSize: number;
-  private readonly tilesX: number;
-  private readonly tilesY: number;
+  private tileSize: number;
+  private tilesX: number;
+  private tilesY: number;
   private readonly cnv: ElementRef<HTMLCanvasElement> | undefined;
   private ctx: CanvasRenderingContext2D | null;
+  private pause = false;
 
   public width = window.innerWidth;
   private height = window.innerHeight;
@@ -33,12 +34,39 @@ export class Game {
 
   // METHODS
 
-  getWidth(): number{
+  getWidth(): number {
     return this.width ? this.width : 800;
   }
 
-  getHeight(): number{
+  getHeight(): number {
     return this.height ? this.height : 500;
+  }
+
+  getTileSize(): number {
+    return this.tileSize;
+  }
+
+  updateTileSize(tileSize: number): void {
+    this.pause = true;
+    setTimeout(() => {
+      const nTilesX = this.width / tileSize;
+      const nTilesY = this.height / tileSize;
+
+      if (nTilesY > this.tilesY) {
+        this.BOARD.forEach(row => {
+          row.fill(false, this.tilesY, nTilesY);
+        });
+      }
+      if (nTilesX > this.tilesX) {
+        this.BOARD.fill(([] as boolean[]).fill(false, 0, nTilesY), this.tilesX, nTilesX);
+      }
+      this.tileSize = tileSize;
+      this.tilesX = this.width / tileSize;
+      this.tilesY = this.height / tileSize;
+      this.pause = false;
+      this.nextGenLoop();
+    }, 100);
+
   }
 
   updateSize(width: number, height: number): void {
@@ -58,8 +86,8 @@ export class Game {
     if (!this.ctx) {
       return;
     }
-    this.ctx.fillStyle = 'rgb(100, 240, 150)';
-    this.ctx.strokeStyle = 'rgb(200, 200, 200)';
+    this.ctx.fillStyle = 'rgb(200, 200, 200)';
+    this.ctx.strokeStyle = '#212529';
     this.ctx.lineWidth = 1;
 
     this.drawGrid();
@@ -82,6 +110,20 @@ export class Game {
       this.ctx.lineTo(this.width, j * this.tileSize - 0.5);
       this.ctx.stroke();
     }
+  }
+
+  showGrid(): void {
+    if (!this.ctx) {
+      return;
+    }
+    this.ctx.strokeStyle = 'rgb(200, 200, 200)';
+  }
+
+  hideGrid(): void {
+    if (!this.ctx) {
+      return;
+    }
+    this.ctx.strokeStyle = '#212529';
   }
 
   // Set the initial board to a boolean 2D array, with only dead cells
@@ -113,6 +155,9 @@ export class Game {
   isAlive(x: number, y: number): number {
     if ( x < 0 || x >= this.tilesX || y < 0 || y >= this.tilesY ) {
       return 0;
+    }
+    if (!this.BOARD[x]) {
+      this.BOARD[x] = ([] as boolean[]).fill(false, 0, this.tilesY);
     }
     return this.BOARD[x][y] ? 1 : 0;
   }
@@ -172,6 +217,22 @@ export class Game {
   // Loops on the nextGen function every 100ms
   nextGenLoop(): void {
     this.nextGen();
-    setTimeout(() => { this.nextGenLoop(); }, 100);
+    setTimeout(() => { this.pause ? (() => {})() : this.nextGenLoop(); }, 100);
+  }
+
+  populate(): void {
+    for ( let i = 0; i < this.tilesX; i++ ) {
+      for ( let j = 0; j < this.tilesY; j++ ) {
+        this.BOARD[i][j] = Boolean(Math.round(Math.random()));
+      }
+    }
+  }
+
+  empty(): void {
+    for ( let i = 0; i < this.tilesX; i++ ) {
+      for ( let j = 0; j < this.tilesY; j++ ) {
+        this.BOARD[i][j] = false;
+      }
+    }
   }
 }
